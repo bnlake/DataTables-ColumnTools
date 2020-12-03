@@ -1,0 +1,36 @@
+{
+  "name": "datatables-columntools",
+  "version": "1.0.0",
+  "description": "jQuery Datatables extension to add column tools (a.k.a hamburger menu)",
+  "main": "js/dataTables.coltools.js",
+  "files": [
+    "js/**/*.js"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bnlake/DataTables-ColumnTools.git"
+  },
+  "keywords": [
+    "datatables",
+    "column",
+    "tools",
+    "hamburger",
+    "menu"
+  ],
+  "author": {
+    "name": "Brian Lake",
+    "email": "bnlake@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bnlake/DataTables-ColumnTools/issues"
+  },
+  "homepage": "https://github.com/bnlake/DataTables-ColumnTools#readme",
+  "dependencies": {
+    "jquery": ">=1.7.0",
+    "datatables": ">=1.10.8"
+  }
+}
