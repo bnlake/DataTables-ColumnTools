@@ -34,7 +34,25 @@
 	 * the coltools extension
 	 * @param {object} dt DataTables instance
 	 */
-	DataTable.coltools.init = function (dt) {
+	DataTable.coltools.init = function (dt) {};
 
-	};
+	$(document).on('preInit.dt', function (event, settings) {
+		settings.aoColumns.forEach(function (dtColumn, index) {
+			let $th = $(dtColumn.nTh);
+			let tableId = $th.closest('table')[0].id;
+
+			$('<button/>')
+				.text('=')
+				.addClass('btn btn-sm btn-primary')
+				.attr('data-table', tableId)
+				.on('click', function (event) {
+					event.stopPropagation();
+					event.preventDefault();
+					console.log(
+						`clicked for table: ${tableId} column: ${index}`
+					);
+				})
+				.appendTo($th);
+		});
+	});
 });
