@@ -6,7 +6,7 @@
 	"files": [
 		"js/**/*.js"
 	],
-	"scripts": {	},
+	"scripts": {},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bnlake/DataTables-ColumnTools.git"

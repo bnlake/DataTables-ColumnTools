@@ -13,6 +13,7 @@
 			rel="stylesheet"
 			href="../node_modules/datatables.net-bs4/css/dataTables.bootstrap4.min.css"
 		/>
+		<link rel="stylesheet" href="../css/dataTables.coltools.css" />
 
 		<script src="../node_modules/jquery/dist/jquery.min.js"></script>
 		<script src="../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -24,6 +25,21 @@
 		<script src="./index.js"></script>
 	</head>
 	<body>
+		<div class="column_tool">
+			<div>
+				<button class="sort_button">Sort Ascending</button>
+			</div>
+			<div>
+				<button class="sort_button">Sort Descending</button>
+			</div>
+			<div class="filter_div">
+				<label>
+					Search:
+					<input type="search" aria-controls="TODO"/>
+				</label>
+			</div>
+		</div>
+
 		<table id="table1" class="table table-sm">
 			<thead>
 				<tr>

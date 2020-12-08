@@ -1,0 +1,18 @@
+.column_tool {
+    display: flex;
+    position: absolute;
+    z-index: 10;
+    width: 400px;
+    flex-direction: column;
+    background-color: brown;
+    border: 3px solid black;
+}
+
+.column_tool .sort_button {
+    display: block;
+    width: 100%;
+}
+
+.column_tool .filter_div {
+    display: inline;
+}
