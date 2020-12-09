@@ -25,25 +25,232 @@
 	'use strict';
 	var DataTable = $.fn.dataTable;
 
-	DataTable.coltools = {};
+	// Used for namespacing events added to the document by each instance, so they
+	// can be removed on destroy
+	var _instCounter = 0;
 
-	DataTable.coltools.version = '1.0.0';
-
-	DataTable.coltools.settings = {
-		classes: {
-			container: 'column-tool',
-			sortasc: 'sort-asc',
-			sortdesc: 'sort-desc',
-			filter: 'filter'
+	var ColumnTools = function (dt, config) {
+		// If not created with a `new` keyword then we return a wrapper function that
+		// will take the settings object for a DT. This allows easy use of new instances
+		// with the `layout` option - e.g. `topLeft: $.fn.dataTable.Buttons( ... )`.
+		if (!(this instanceof ColumnTools)) {
+			return function (settings) {
+				return new ColumnTools(settings, dt).container();
+			};
 		}
+
+		// If there is no config set it to an empty object
+		if (typeof config === 'undefined') {
+			config = {};
+		}
+
+		// Allow a boolean true for defaults
+		if (config === true) {
+			config = {};
+		}
+
+		// set a configuration object for `this`
+		this.c = $.extend(true, {}, ColumnTools.defaults, config);
+
+		this.s = {
+			dt: new DataTable.Api(dt),
+			buttons: [], // @todo may not be using
+			listenKeys: '',
+			namespace: 'dtct' + _instCounter++
+		};
+
+		// set a DOM object for `this`
+		this.dom = {
+			container: $('<' + this.c.dom.container.tag + '/>').addClass(
+				this.c.dom.container.className
+			)
+		};
+
+		this._constructor();
 	};
 
-	/**
-	 * Given a dataTables instance, initialization method for
-	 * the coltools extension
-	 * @param {object} dt DataTables instance
-	 */
-	DataTable.coltools.init = function (dt) {};
+	$.extend(ColumnTools.prototype, {
+		/**
+		 * Return the container node
+		 * @returns {jQuery}
+		 */
+		container: function () {
+			return this.dom.container;
+		},
+
+		/**
+		 * Destroy the column tools instance, cleaning up event listeners
+		 * and removing DOM elements
+		 */
+		destroy: function () {
+			// @todo implement
+		},
+
+		/**
+		 * ColumnTools Constructor
+		 * @private
+		 */
+		_constructor: function () {
+			var that = this;
+			var dt = this.s.dt;
+			var dtSettings = dt.settings()[0]; // @todo identify this
+			var columntools = this.c.columntools;
+
+			if (!dtSettings._columntools) {
+				dtSettings._columntools = [];
+			}
+
+			dtSettings._columntools.push({
+				inst: this, // This column tools instance
+				name: this.c.name
+			});
+
+			// @todo is this add each individual button in the container, or the containers for all datatables
+			for (var i = 0, ien = buttons.length; i < ien; i++) {
+				this.add(buttons[i]);
+			}
+
+			dt.on('destroy', function (e, settings) {
+				if (settings === dtSettings) {
+					that.destroy();
+				}
+			});
+		},
+
+		/**
+		 * Create an individual container
+		 * @param {object} config resolved columntools configuration
+		 * @returns {jQuery} created container $ node
+		 */
+		_buildContainer: function (config) {
+			// var dt = this.s.dt;
+			var containerDom = this.s.dom.container;
+
+			var tag = config.tag || containerDom.tag; // The HTML tag to be used as the container. Likely a div
+
+			var container = $(`<${tag}/>`)
+				.addClass(containerDom.className)
+				.attr('aria-controls', this.s.dt.table().node().id);
+
+			if (config.className) {
+				container.addClass(config.className);
+			}
+
+			if (config.titleAttr) {
+				container.attr('title', text(config.titleAttr));
+			}
+
+			if (config.attr) {
+				container.attr(config.attr);
+			}
+
+			if (!config.namespace) {
+				container.namespace = '.dt-columntool-' + _buttonCounter++;
+			}
+
+			return {
+				config: config,
+				node: container.get(0)
+			};
+		},
+
+		/**
+		 * @todo comment
+		 * @param {object} config
+		 */
+		_buildToggler: function (config) {
+			var togglerDom = this.s.dom.toggler;
+			var tag = config.tag || togglerDom.tag;
+
+			var toggler = $(`<${tag}/>`)
+				.addClass(config.className)
+				.text('=')
+				.on('click', function (event) {
+					console.log('clicked the opener');
+				});
+
+			return toggler;
+		},
+
+		/**
+		 * @todo comment
+		 * @param {object} config
+		 */
+		_buildSortAsc: function (config) {
+			var sortascDom = this.s.dom.sort_asc;
+			var tag = config.tag || sortascDom.tag;
+
+			var sortasc = $(`<${tag}/>`)
+				.addClass(config.className)
+				.text('=')
+				.on('click', function (event) {
+					console.log('clicked the sort asc');
+				});
+
+			return sortasc;
+		},
+
+		/**
+		 * @todo comment
+		 * @param {object} config
+		 */
+		_buildSortDesc: function (config) {
+			var sortdescDom = this.s.dom.sort_desc;
+			var tag = config.tag || sortdescDom.tag;
+
+			var sortdesc = $(`<${tag}/>`)
+				.addClass(config.className)
+				.text('=')
+				.on('click', function (event) {
+					console.log('clicked the sort desc');
+				});
+
+			return sortdesc;
+		},
+
+		/**
+		 * @todo comment
+		 * @param {object} config
+		 */
+		_buildFilterBox: function (config) {
+			var filterDom = this.s.dom.filter;
+			var tag = config.tag || filterDom.tag;
+
+			var filter = $(`<${tag}/>`).addClass(config.className).attr('type', 'search');
+			// @todo add events to search
+			// @todo add listeners for other filters applied
+		}
+	});
+
+	DataTable.columntools = {};
+
+	ColumnTools.version = '1.0.0';
+
+	ColumnTools.defaults = {
+		name: 'main',
+		dom: {
+			toggler: {
+				tag: 'div',
+				className: 'dt-ct-toggler'
+			},
+			container: {
+				tag: 'div',
+				className: 'dt-columntools'
+			},
+			sort_asc: {
+				tag: 'div',
+				className: 'dt-ct-sortasc'
+			},
+			sort_desc: {
+				tag: 'div',
+				className: 'dt-ct-sortdesc'
+			},
+			filter: {
+				tag: 'input',
+				className: 'dt-ct-filter'
+			}
+		}
+	};
 
 	/**
 	 * Generate the node required for filtering text
@@ -57,13 +264,10 @@
 		var language = settings.oLanguage;
 		var previousSearch = settings.oPreviousSearch;
 		var features = settings.aanFeatures;
-		var input =
-			'<input type="search" class="' + classes.sFilterInput + '"/>';
+		var input = '<input type="search" class="' + classes.sFilterInput + '"/>';
 
 		var str = language.sSearch;
-		str = str.match(/_INPUT_/)
-			? str.replace('_INPUT_', input)
-			: str + input;
+		str = str.match(/_INPUT_/) ? str.replace('_INPUT_', input) : str + input;
 
 		var filter = $('<div/>', {
 			id: !features.f ? tableId + '_filter' : null,
@@ -222,18 +426,13 @@
 
 		// Set the data properties for the container
 		$('.column_tool').each(function (element) {
-			$(element)
-				.attr('data-table', tableID)
-				.attr('data-column', columnIDX);
+			$(element).attr('data-table', tableID).attr('data-column', columnIDX);
 		});
 		// Show the container
 
 		// Add listeners?
 
-		_setContainerXY(
-			_getSafeContainerLeft(event.pageX),
-			_getSafeContainerTop(event.pageY)
-		);
+		_setContainerXY(_getSafeContainerLeft(event.pageX), _getSafeContainerTop(event.pageY));
 		console.log(`clicked for table: ${tableID} column: ${columnIDX}`);
 	}
 
@@ -253,7 +452,20 @@
 		}
 	}
 
-	$(document).on('preInit.dt', function (event, settings) {
+	$.fn.dataTable.Buttons = ColumnTools;
+	$.fn.DataTable.Buttons = ColumnTools;
+
+	/**
+	 * DataTables creation - check columndefs to identify which columns need a column
+	 * tools objects created
+	 */
+	$(document).on('init.dt', function (event, settings) {
+		if (event.namespace !== 'dt') {
+			return;
+		}
+
+		var options = settings.oInit.columntools || DataTable.defaults.columntools;
+
 		settings.aoColumns.forEach(function (dtColumn, index) {
 			let $th = $(dtColumn.nTh);
 			let tableId = $th.closest('table')[0].id;
